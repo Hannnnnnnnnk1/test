@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四天王地图游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e6f0ff, #d4e4ff);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1a3c5f;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #2a5298;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 100, 0.2);
+            overflow: hidden;
+        }
+        
+        .game-header {
+            padding: 20px;
+            background: linear-gradient(to right, #3a7bd5, #2a5298);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-header:before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 0;
+        }
+        
+        .game-header h2 {
+            position: relative;
+            z-index: 1;
+            font-size: 1.8rem;
+        }
+        
+        .game-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .map-container {
+            flex: 3;
+            min-width: 600px;
+            height: 500px;
+            position: relative;
+            background: #eaf2ff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(200, 220, 255, 0.2) 0.5px, transparent 1px),
+                radial-gradient(circle at 10% 10%, rgba(200, 220, 255, 0.2) 0.5px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        
+        .drag-items {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background: #f8faff;
+            border-radius: 10px;
+            margin-left: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .drag-items h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2a5298;
+            border-bottom: 2px solid #d4e4ff;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        
+        .drag-items h3:after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #4a86e8, transparent);
+        }
+        
+        .drag-item {
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+            color: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: grab;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .drag-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .drag-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        
+        .drag-item:hover:before {
+            left: 100%;
+        }
+        
+        .slots-container {
+            width: 100%;
+            padding: 20px;
+            background: #f0f7ff;
+            border-top: 2px solid #d4e4ff;
+        }
+        
+        .slots-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2a5298;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .slots {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .slot {
+            width: 130px;
+            height: 70px;
+            background: #e1e8f0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid #c5d5e9;
+        }
+        
+        .slot.fixed {
+            background: linear-gradient(to bottom, #a8d1b0, #8fc19d);
+            color: #1a5c2c;
+            border: 2px solid #7db68a;
+        }
+        
+        .slot.highlight {
+            background: linear-gradient(to bottom, #ffd166, #ffc44d);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 209, 102, 0.5);
+            border: 2px solid #ffb700;
+        }
+        
+        .slot .name {
+            font-size: 1rem;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+        }
+        
+        .slot .number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 0.8rem;
+            color: #5a7d9a;
+            background: rgba(255,255,255,0.7);
+            border-radius: 10px;
+            padding: 2px 8px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 14px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        button:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: 0.4s;
+            z-index: -1;
+        }
+        
+        button:hover:before {
+            width: 100%;
+        }
+        
+        #submit-btn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            color: white;
+        }
+        
+        #reset-btn {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin: 20px auto 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            max-width: 80%;
+            display: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.success {
+            background: linear-gradient(to right, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #b1dfbb;
+            display: block;
+        }
+        
+        .message.error {
+            background: linear-gradient(to right, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #f1b0b7;
+            display: block;
+        }
+        
+        .node {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            border: 2px solid white;
+        }
+        
+        .node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .node-center {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #4a86e8, #2a5298);
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+        
+        .node-normal {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #5fa3f7, #3a7bd5);
+            font-size: 1rem;
+        }
+        
+        .edge {
+            position: absolute;
+            background: #8a9fb5;
+            transform-origin: 0 0;
+            z-index: 1;
+            height: 3px;
+        }
+        
+        .distance {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #2a5298;
+            font-weight: bold;
+            z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #c5d5ea;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0 30px;
+            border-left: 5px solid #3a7bd5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #2a5298;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions h3:before {
+            content: "📌";
+            margin-right: 10px;
+        }
+        
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .instructions p:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #3a7bd5;
+            font-weight: bold;
+        }
+        
+        .optimal-distance {
+            background: linear-gradient(to right, #ffd166, #ffb347);
+            color: #5a3700;
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .node-info {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 20;
+            max-width: 200px;
+            font-size: 0.9rem;
+            display: none;
+            border: 1px solid #d4e4ff;
+        }
+        
+        @media (max-width: 900px) {
+            .game-content {
+                flex-direction: column;
+            }
+            
+            .drag-items {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+            
+            .map-container {
+                min-width: 100%;
+                height: 400px;
+            }
+            
+            .slots {
+                flex-wrap: wrap;
+            }
+            
+            .slot {
+                width: 45%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>四天王地圖遊戲</h1>
+        </header>
+        
+        <div class="instructions">
+            <h3>任務說明</h3>
+            <p>從阿山伯家為起點規劃最短路線訪問所有四天王並返回阿文伯家</p>
+            <p>提示：拖動右側的天王到下方的空格中，且阿文伯和彈珠王是同個位置</p>
+            <p class="optimal-distance">最短路徑長度為 15 單位</p>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-header">
+                <h2>規劃四天王訪問路線</h2>
+            </div>
+            
+            <div class="game-content">
+                <div class="map-container" id="map">
+                    <!-- 地圖將由JavaScript動態生成 -->
+                </div>
+                
+                <div class="drag-items">
+                    <h3>拖動天王到路線中</h3>
+                    <div class="drag-item" draggable="true" data-item="陀螺帝">陀螺帝</div>
+                    <div class="drag-item" draggable="true" data-item="神射手">神射手</div>
+                    <div class="drag-item" draggable="true" data-item="丟標仔">丟標仔</div>
+                    <div class="drag-item" draggable="true" data-item="彈珠王">彈珠王</div>
+                </div>
+            </div>
+            
+            <div class="slots-container">
+                <div class="slots-title">訪問路線規劃</div>
+                <div class="slots">
+                    <div class="slot fixed" data-slot="0">
+                        <div class="number">起點</div>
+                        <div class="name">阿山伯</div>
+                    </div>
+                    <div class="slot" data-slot="1">
+                        <div class="number">第一站</div>
+                        <div class="name"></div>
+                    </div>
+                    <div class="slot" data-slot="2">
+                        <div class="number">第二站</div>
+                        <div class="name"></div>
+                    </div>
+                    <div class="slot" data-slot="3">
+                        <div class="number">第三站</div>
+                        <div class="name"></div>
+                    </div>
+                    <div class="slot" data-slot="4">
+                        <div class="number">第四站</div>
+                        <div class="name"></div>
+                    </div>
+                    <div class="slot fixed" data-slot="5">
+                        <div class="number">終點</div>
+                        <div class="name">阿文伯/彈珠王</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="submit-btn">完成路線</button>
+                    <button id="reset-btn">重置路線</button>
+                </div>
+                
+                <div class="message" id="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 比例尺
+        const SCALE = 60;
+        const CENTER_X = 500;
+        const CENTER_Y = 250;
+        
+        // 節點位置
+        const nodes = {
+            "阿山伯": {
+                x: CENTER_X - 5 * SCALE * 0.85,
+                y: CENTER_Y - 5 * SCALE * 0.55
+            },
+            "陀螺帝": {
+                x: CENTER_X + 2 * SCALE * 0.85,
+                y: CENTER_Y - 2 * SCALE * 0.55
+            },
+            "丟標仔": {
+                x: CENTER_X - 3 * SCALE * 0.85,
+                y: CENTER_Y + 3 * SCALE * 0.55
+            },
+            "神射手": {
+                x: CENTER_X + 3 * SCALE * 0.85,
+                y: CENTER_Y + 3 * SCALE * 0.55
+            },
+            "阿文伯/彈珠王": {
+                x: CENTER_X,
+                y: CENTER_Y
+            }
+        };
+        
+        // 連接關係
+        const edges = [
+            {from: "阿山伯", to: "陀螺帝", distance: 7},
+            {from: "阿山伯", to: "阿文伯/彈珠王", distance: 5},
+            {from: "阿山伯", to: "丟標仔", distance: 5},
+            {from: "陀螺帝", to: "阿文伯/彈珠王", distance: 2},
+            {from: "陀螺帝", to: "神射手", distance: 3},
+            {from: "神射手", to: "阿文伯/彈珠王", distance: 3},
+            {from: "丟標仔", to: "阿文伯/彈珠王", distance: 3},
+            {from: "丟標仔", to: "神射手", distance: 5}
+        ];
+        
+        // 正確路線順序
+        const correctOrder = ["阿山伯", "丟標仔", "神射手", "陀螺帝", "彈珠王", "阿文伯/彈珠王"];
+        
+        // 當前選擇的路線
+        let currentRoute = {
+            0: "阿山伯",
+            1: null,
+            2: null,
+            3: null,
+            4: null,
+            5: "阿文伯/彈珠王"
+        };
+        
+        // 初始化地圖
+        function initMap() {
+            const mapContainer = document.getElementById('map');
+            
+            // 繪製連接線
+            edges.forEach(edge => {
+                const fromNode = nodes[edge.from];
+                const toNode = nodes[edge.to];
+                
+                // 計算線條角度和長度
+                const dx = toNode.x - fromNode.x;
+                const dy = toNode.y - fromNode.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                // 創建線條元素
+                const line = document.createElement('div');
+                line.className = 'edge';
+                line.style.width = `${length}px`;
+                line.style.left = `${fromNode.x}px`;
+                line.style.top = `${fromNode.y}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                // 創建距離標籤
+                const distance = document.createElement('div');
+                distance.className = 'distance';
+                distance.textContent = edge.distance;
+                distance.style.left = `${(fromNode.x + toNode.x) / 2 - 15}px`;
+                distance.style.top = `${(fromNode.y + toNode.y) / 2 - 10}px`;
+                
+                mapContainer.appendChild(line);
+                mapContainer.appendChild(distance);
+            });
+            
+            // 繪製節點
+            Object.keys(nodes).forEach(nodeName => {
+                const node = document.createElement('div');
+                const isCenter = nodeName === "阿文伯/彈珠王";
+                node.className = `node ${isCenter ? 'node-center' : 'node-normal'}`;
+                node.dataset.name = nodeName;
+                node.style.left = `${nodes[nodeName].x - (isCenter ? 45 : 35)}px`;
+                node.style.top = `${nodes[nodeName].y - (isCenter ? 45 : 35)}px`;
+                
+                // 特殊處理中心節點的文字
+                if (isCenter) {
+                    node.innerHTML = `
+                        <div style="line-height: 1.3; padding: 5px">
+                            <div>阿文伯</div>
+                            <div>彈珠王</div>
+                        </div>
+                    `;
+                } else {
+                    node.textContent = nodeName;
+                }
+                
+                // 添加懸停事件
+                node.addEventListener('mouseenter', showNodeInfo);
+                node.addEventListener('mouseleave', hideNodeInfo);
+                
+                mapContainer.appendChild(node);
+            });
+            
+            // 添加節點信息彈窗
+            const infoBox = document.createElement('div');
+            infoBox.className = 'node-info';
+            infoBox.id = 'node-info';
+            mapContainer.appendChild(infoBox);
+        }
+        
+        // 顯示節點信息
+        function showNodeInfo(e) {
+            const nodeName = e.target.dataset.name;
+            const infoBox = document.getElementById('node-info');
+            
+            // 獲取連接信息
+            let connections = edges.filter(edge => 
+                edge.from === nodeName || edge.to === nodeName
+            ).map(edge => {
+                const otherNode = edge.from === nodeName ? edge.to : edge.from;
+                return `${otherNode} (${edge.distance}單位)`;
+            }).join('<br>');
+            
+            infoBox.innerHTML = `<strong>${nodeName}</strong><hr style="margin:5px 0">連接點：<br>${connections}`;
+            infoBox.style.display = 'block';
+            infoBox.style.left = `${e.pageX + 10}px`;
+            infoBox.style.top = `${e.pageY + 10}px`;
+        }
+        
+        function hideNodeInfo() {
+            document.getElementById('node-info').style.display = 'none';
+        }
+        
+        // 拖放功能實現
+        function setupDragAndDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const slots = document.querySelectorAll('.slot:not(.fixed)');
+            
+            // 拖動開始
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', e.target.dataset.item);
+                    e.target.classList.add('dragging');
+                });
+                
+                item.addEventListener('dragend', e => {
+                    e.target.classList.remove('dragging');
+                });
+            });
+            
+            // 拖動經過槽位
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    slot.classList.add('highlight');
+                });
+                
+                slot.addEventListener('dragleave', () => {
+                    slot.classList.remove('highlight');
+                });
+                
+                // 放置到槽位
+                slot.addEventListener('drop', e => {
+                    e.preventDefault();
+                    slot.classList.remove('highlight');
+                    
+                    const item = e.dataTransfer.getData('text/plain');
+                    const slotIndex = parseInt(slot.dataset.slot);
+                    
+                    // 檢查是否已經放置過
+                    const nameDiv = slot.querySelector('.name');
+                    
+                    // 更新槽位顯示
+                    nameDiv.textContent = item;
+                    
+                    // 更新當前路線
+                    currentRoute[slotIndex] = item;
+                });
+            });
+        }
+        
+        // 檢查解決方案
+        function checkSolution() {
+            const messageEl = document.getElementById('message');
+            messageEl.className = 'message';
+            
+            // 檢查所有槽位是否已填
+            for (let i = 1; i <= 4; i++) {
+                if (!currentRoute[i]) {
+                    showMessage('請填滿所有空格！', 'error');
+                    return;
+                }
+            }
+            
+            // 檢查是否所有天王都被訪問
+            const requiredItems = ["丟標仔", "神射手", "陀螺帝", "彈珠王"];
+            const placedItems = Object.values(currentRoute).filter(Boolean);
+            
+            if (!requiredItems.every(item => placedItems.includes(item))) {
+                showMessage('沒有找到所有四天王！', 'error');
+                return;
+            }
+            
+            // 檢查是否為正確路線
+            const isCorrect = Object.keys(currentRoute)
+                .map(key => currentRoute[key])
+                .every((item, index) => item === correctOrder[index]);
+            
+            if (isCorrect) {
+                showMessage('恭喜你找到了最短路徑! 總距離為15單位。繼續下一關吧!', 'success');
+            } else {
+                showMessage('路線不是最短路徑，再試一次吧。', 'error');
+            }
+        }
+        
+        // 顯示消息
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = message;
+            messageEl.className = `message ${type}`;
+            
+            // 5秒後自動消失
+            setTimeout(() => {
+                if (messageEl.className.includes(type)) {
+                    messageEl.className = 'message';
+                }
+            }, 5000);
+        }
+        
+        // 重置路線
+        function resetRoute() {
+            currentRoute = {
+                0: "阿山伯",
+                1: null,
+                2: null,
+                3: null,
+                4: null,
+                5: "阿文伯/彈珠王"
+            };
+            
+            document.querySelectorAll('.slot:not(.fixed) .name').forEach(el => {
+                el.textContent = '';
+            });
+            
+            const messageEl = document.getElementById('message');
+            messageEl.className = 'message';
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            setupDragAndDrop();
+            
+            // 事件監聽
+            document.getElementById('submit-btn').addEventListener('click', checkSolution);
+            document.getElementById('reset-btn').addEventListener('click', resetRoute);
+            
+            // 跟隨鼠標移動節點信息
+            document.addEventListener('mousemove', (e) => {
+                const infoBox = document.getElementById('node-info');
+                if (infoBox.style.display === 'block') {
+                    infoBox.style.left = `${e.pageX + 10}px`;
+                    infoBox.style.top = `${e.pageY + 10}px`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
