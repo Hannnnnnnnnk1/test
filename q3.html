@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第一人稱竹筷槍射擊挑戰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #a8d1b0, #8fbc8f);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1a3c5f;
+            overflow: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #8b4513;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            color: #5a3700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 3px solid #8b4513;
+        }
+        
+        .game-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .panel-title {
+            color: #5a3700;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #8b4513;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .control-group {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 1px solid #8b4513;
+        }
+        
+        .control-title {
+            color: #5a3700;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .control-title::before {
+            content: "➤";
+            margin-right: 8px;
+            color: #8b4513;
+        }
+        
+        .rubber-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .rubber-option {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(to bottom, #ffd166, #ffb347);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e6ac00;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+        
+        .rubber-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .rubber-option.selected {
+            background: linear-gradient(to bottom, #ff8c00, #ff6b00);
+            border: 2px solid #cc5a00;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .rubber-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #5a3700;
+        }
+        
+        .rubber-value {
+            font-size: 0.9rem;
+            color: #8b4513;
+        }
+        
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #5a3700;
+        }
+        
+        .slider-track {
+            position: relative;
+            height: 25px;
+            background: #e0c9af;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid #8b4513;
+            overflow: hidden;
+        }
+        
+        .slider-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(to right, #ffd166, #ff8c00);
+            border-radius: 12px;
+        }
+        
+        .slider-thumb {
+            position: absolute;
+            top: 2px;
+            width: 21px;
+            height: 21px;
+            background: #8b4513;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            z-index: 10;
+            border: 2px solid #ffd166;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            min-width: 140px;
+        }
+        
+        .action-btn:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: 0.4s;
+            z-index: -1;
+        }
+        
+        .action-btn:hover:before {
+            width: 100%;
+        }
+        
+        .fire-btn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            color: white;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .action-btn:active {
+            transform: translateY(2px);
+        }
+        
+        .scene-container {
+            flex: 2;
+            min-width: 400px;
+            height: 500px;
+            background: linear-gradient(to bottom, #b5d8b8, #8fbc8f);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            perspective: 1000px;
+        }
+        
+        /* 簡化場景 */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to top, #8fbc8f, #7da67d);
+            transform: rotateX(60deg);
+            transform-origin: bottom;
+        }
+        
+        .road {
+            position: absolute;
+            bottom: 10%;
+            left: 25%;
+            width: 50%;
+            height: 25%;
+            background: #a9a9a9;
+            transform: rotateX(60deg);
+            transform-origin: bottom;
+        }
+        
+        /* 立體罐子 - 3D效果增強 */
+        .can {
+            position: absolute;
+            bottom: 35%;
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to right, #c0c0c0, #e0e0e0);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateZ(0) rotateX(60deg);
+            transform-origin: bottom;
+            transition: all 0.5s ease;
+            z-index: 20;
+            box-shadow: 
+                0 10px 20px rgba(0,0,0,0.4),
+                inset -8px 0 15px rgba(0,0,0,0.2),
+                inset 8px 0 15px rgba(255,255,255,0.6);
+        }
+        
+        .can-10 {
+            left: 30%;
+            transform: scale(1.2) translateY(30px) rotateX(60deg);
+        }
+        
+        .can-17 {
+            left: 45%;
+            transform: scale(1.0) translateY(60px) rotateX(60deg);
+        }
+        
+        .can-21 {
+            left: 60%;
+            transform: scale(0.8) translateY(90px) rotateX(60deg);
+        }
+        
+        .can-top {
+            position: absolute;
+            top: 0;
+            left: 5px;
+            width: 30px;
+            height: 10px;
+            background: #a0a0a0;
+            border-radius: 3px 3px 0 0;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.3);
+        }
+        
+        .can-label {
+            position: absolute;
+            top: 15px;
+            left: 5px;
+            width: 30px;
+            height: 30px;
+            background: #e74c3c;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 
+                inset 0 0 8px rgba(0,0,0,0.3),
+                0 2px 5px rgba(0,0,0,0.3);
+            transform: rotateX(5deg);
+        }
+        
+        /* 竹筷枪 - 第一人称视角 (优化版) */
+        .gun-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 300px;
+            z-index: 100;
+            perspective: 1000px;
+        }
+        
+        .bamboo-gun {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) rotateX(10deg);
+            transform-origin: bottom;
+            transition: transform 0.5s ease;
+            width: 100px;
+            height: 250px;
+        }
+        
+        /* 枪柄 */
+        .gun-handle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 100px;
+            background: linear-gradient(to bottom, #8b4513, #5a3700);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            z-index: 10;
+        }
+        
+        /* 枪管 - 向上延伸 */
+        .gun-barrel {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 150px;
+            background: linear-gradient(to top, #8b4513, #5a3700);
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            z-index: 5;
+            transform-origin: bottom;
+        }
+        
+        /* 扳机 */
+        .gun-trigger {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 30px;
+            background: #5a3700;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            z-index: 15;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        .gun-trigger:active {
+            transform: translateX(-50%) translateY(5px);
+        }
+        
+        /* 橡皮筋 - 垂直方向 */
+        .rubber-band {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 60px;
+            background: #ff8c00;
+            border-radius: 4px;
+            transition: all 0.5s ease;
+            z-index: 7;
+            box-shadow: 0 0 5px rgba(255, 140, 0, 0.8);
+            transform-origin: center;
+        }
+        
+        .flying-rubber {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background: #ff8c00;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.7);
+            z-index: 90;
+        }
+        
+        .hit-effect {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,0,0.8), rgba(255,0,0,0));
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+            animation: hitEffect 0.8s forwards;
+            z-index: 80;
+        }
+        
+        @keyframes hitEffect {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        
+        .state-info {
+            background: linear-gradient(to right, rgba(255, 209, 102, 0.5), rgba(255, 140, 0, 0.5));
+            color: #5a3700;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            border: 2px solid #e6ac00;
+        }
+        
+        @media (max-width: 900px) {
+            .game-content {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .action-btn {
+                padding: 12px 20px;
+                font-size: 1.1rem;
+            }
+            
+            .scene-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>第一人稱竹筷槍射擊挑戰</h1>
+            <div class="subtitle">調整橡皮筋、拉力和角度，精準擊中目標！</div>
+        </header>
+        
+        <div class="game-container">
+            <div class="game-content">
+                <div class="control-panel">
+                    <h2 class="panel-title">射擊控制面板</h2>
+                    
+                    <div class="control-group">
+                        <div class="control-title">橡皮筋選擇</div>
+                        <div class="rubber-options">
+                            <div class="rubber-option" data-type="1號橡皮筋" data-value="5" onclick="selectRubber(this)">
+                                <div class="rubber-name">1號橡皮筋</div>
+                                <div class="rubber-value">射程 +5</div>
+                            </div>
+                            <div class="rubber-option" data-type="2號橡皮筋" data-value="10" onclick="selectRubber(this)">
+                                <div class="rubber-name">2號橡皮筋</div>
+                                <div class="rubber-value">射程 +10</div>
+                            </div>
+                            <div class="rubber-option" data-type="3號橡皮筋" data-value="15" onclick="selectRubber(this)">
+                                <div class="rubber-name">3號橡皮筋</div>
+                                <div class="rubber-value">射程 +15</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-title">拉力調整</div>
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>拉力強度</span>
+                                <span id="tension-value">正常 (+0)</span>
+                            </div>
+                            <div class="slider-track" id="tension-track">
+                                <div class="slider-fill" id="tension-fill" style="width: 33.33%;"></div>
+                                <div class="slider-thumb" id="tension-thumb" style="left: 16.67%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-title">角度調整</div>
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>射擊角度</span>
+                                <span id="angle-value">0度 (+0)</span>
+                            </div>
+                            <div class="slider-track" id="angle-track">
+                                <div class="slider-fill" id="angle-fill" style="width: 25%;"></div>
+                                <div class="slider-thumb" id="angle-thumb" style="left: 12.5%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn fire-btn" id="fire-btn" onclick="fire()">
+                            發射
+                        </button>
+                        <button class="action-btn reset-btn" onclick="resetGame()">
+                            重置遊戲
+                        </button>
+                    </div>
+                    
+                    <div class="state-info" id="state-info">
+                        請選擇橡皮筋並調整參數
+                    </div>
+                </div>
+                
+                <div class="scene-container" id="scene-container">
+                    <div class="ground"></div>
+                    <div class="road"></div>
+                    
+                    <div class="can can-10" id="can-10">
+                        <div class="can-top"></div>
+                        <div class="can-label">10m</div>
+                    </div>
+                    <div class="can can-17" id="can-17">
+                        <div class="can-top"></div>
+                        <div class="can-label">17m</div>
+                    </div>
+                    <div class="can can-21" id="can-21">
+                        <div class="can-top"></div>
+                        <div class="can-label">21m</div>
+                    </div>
+                    
+                    <div class="gun-container">
+                        <div class="bamboo-gun" id="bamboo-gun">
+                            <div class="gun-handle"></div>
+                            <div class="gun-barrel"></div>
+                            <div class="gun-trigger"></div>
+                            <div class="rubber-band" id="rubber-band"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲狀態
+        const gameState = {
+            selectedRubber: null,
+            tension: 1, // 1:正常, 0:小力, 2:大力
+            angle: 0,   // 0:0度, 1:15度, 2:30度, 3:45度
+            tensionValues: {1: "正常 (+0)", 0: "小力 (+4)", 2: "大力 (+8)"},
+            angleValues: {0: "0度 (+0)", 1: "15度 (+3)", 2: "30度 (+7)", 3: "45度 (+11)"},
+            tensionBonuses: {1: 0, 0: 4, 2: 8},
+            angleBonuses: {0: 0, 1: 3, 2: 7, 3: 11},
+            targets: [10, 17, 21],
+            currentTarget: 0,
+            hitTargets: [false, false, false],
+            isFiring: false,
+            gameCompleted: false
+        };
+        
+        // 初始化遊戲
+        function initGame() {
+            setupSliders();
+            updateRubberBand();
+            updateSliders();
+        }
+        
+        // 更新滑杆位置
+        function updateSliders() {
+            // 拉力滑杆
+            const tensionTrack = document.getElementById('tension-track');
+            const tensionThumb = document.getElementById('tension-thumb');
+            const tensionFill = document.getElementById('tension-fill');
+            
+            const tensionWidth = tensionTrack.offsetWidth;
+            const tensionPositions = {
+                1: tensionWidth * 0.1667, // 正常 - 左侧1/6处
+                0: tensionWidth * 0.5,    // 小力 - 中间
+                2: tensionWidth * 0.8333  // 大力 - 右侧5/6处
+            };
+            
+            tensionThumb.style.left = `${tensionPositions[gameState.tension] - 10}px`;
+            tensionFill.style.width = `${(Object.keys(gameState.tensionValues).indexOf(gameState.tension.toString()) + 1) * 33.33}%`;
+            
+            // 角度滑杆
+            const angleTrack = document.getElementById('angle-track');
+            const angleThumb = document.getElementById('angle-thumb');
+            const angleFill = document.getElementById('angle-fill');
+            
+            const angleWidth = angleTrack.offsetWidth;
+            const anglePos = (gameState.angle / 3) * angleWidth;
+            angleThumb.style.left = `${anglePos - 10}px`;
+            angleFill.style.width = `${(gameState.angle + 1) * 25}%`;
+        }
+        
+        // 設置滑塊
+        function setupSliders() {
+            const tensionThumb = document.getElementById('tension-thumb');
+            const tensionTrack = document.getElementById('tension-track');
+            const tensionFill = document.getElementById('tension-fill');
+            const angleThumb = document.getElementById('angle-thumb');
+            const angleTrack = document.getElementById('angle-track');
+            const angleFill = document.getElementById('angle-fill');
+            
+            // 拉力滑塊
+            tensionTrack.addEventListener('click', function(e) {
+                const trackRect = tensionTrack.getBoundingClientRect();
+                const clickX = e.clientX - trackRect.left;
+                const trackWidth = trackRect.width;
+                
+                // 計算區域
+                const zoneWidth = trackWidth / 3;
+                
+                // 確定點擊的區域
+                if (clickX < zoneWidth) {
+                    gameState.tension = 1; // 正常 (左側)
+                } else if (clickX < zoneWidth * 2) {
+                    gameState.tension = 0; // 小力 (中間)
+                } else {
+                    gameState.tension = 2; // 大力 (右側)
+                }
+                
+                // 更新顯示
+                document.getElementById('tension-value').textContent = gameState.tensionValues[gameState.tension];
+                
+                // 更新滑杆位置
+                updateSliders();
+                
+                // 更新橡皮筋
+                updateRubberBand();
+            });
+            
+            // 角度滑塊
+            angleTrack.addEventListener('click', function(e) {
+                const trackRect = angleTrack.getBoundingClientRect();
+                const clickX = e.clientX - trackRect.left;
+                const trackWidth = trackRect.width;
+                
+                // 計算對應的值 (0, 1, 2, 3)
+                const value = Math.min(3, Math.floor((clickX / trackWidth) * 4));
+                gameState.angle = value;
+                
+                // 更新顯示
+                document.getElementById('angle-value').textContent = gameState.angleValues[value];
+                
+                // 更新滑杆位置
+                updateSliders();
+                
+                // 更新竹筷槍角度
+                updateGunAngle();
+            });
+        }
+        
+        // 更新橡皮筋
+        function updateRubberBand() {
+            const rubberBand = document.getElementById('rubber-band');
+            
+            if (!gameState.selectedRubber) return;
+            
+            // 根據橡皮筋類型設置粗細
+            let thickness = 8;
+            if (gameState.selectedRubber.type === "2號橡皮筋") thickness = 10;
+            if (gameState.selectedRubber.type === "3號橡皮筋") thickness = 12;
+            
+            // 根據拉力設置長度
+            let length = 60;
+            if (gameState.tension === 0) length = 40; // 小力
+            if (gameState.tension === 2) length = 80; // 大力
+            
+            rubberBand.style.width = `${thickness}px`;
+            rubberBand.style.height = `${length}px`;
+            rubberBand.style.top = `${150 - length}px`;
+        }
+        
+        // 選擇橡皮筋
+        function selectRubber(element) {
+            // 移除之前的選擇
+            document.querySelectorAll('.rubber-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // 設置當前選擇
+            element.classList.add('selected');
+            gameState.selectedRubber = {
+                type: element.dataset.type,
+                value: parseInt(element.dataset.value)
+            };
+            
+            // 更新UI
+            document.getElementById('state-info').textContent = `已選擇: ${gameState.selectedRubber.type}`;
+            
+            // 更新橡皮筋
+            updateRubberBand();
+        }
+        
+        // 更新竹筷槍角度
+        function updateGunAngle() {
+            const gunBarrel = document.querySelector('.gun-barrel');
+            const rubberBand = document.getElementById('rubber-band');
+            
+            // 根据角度调整枪管俯仰角度
+            const angle = gameState.angle * 15; // 0, 15, 30, 45
+            gunBarrel.style.transform = `translateX(-50%) rotateX(${angle}deg)`;
+            
+            // 同时调整橡皮筋角度
+            rubberBand.style.transform = `translateX(-50%) rotateX(${angle}deg)`;
+        }
+        
+        // 發射
+        function fire() {
+            if (gameState.isFiring || !gameState.selectedRubber || gameState.gameCompleted) return;
+            
+            gameState.isFiring = true;
+            document.getElementById('fire-btn').disabled = true;
+            document.getElementById('state-info').textContent = "發射中...";
+            
+            // 計算射程
+            const calculatedRange = gameState.selectedRubber.value + 
+                                   gameState.tensionBonuses[gameState.tension] + 
+                                   gameState.angleBonuses[gameState.angle];
+            
+            // 目標距離
+            const targetDistance = gameState.targets[gameState.currentTarget];
+            
+            // 檢查是否擊中
+            const hit = (calculatedRange === targetDistance);
+            
+            // 顯示飛行效果
+            animateRubberBand(hit);
+        }
+        
+        // 動畫：橡皮筋飛行
+        function animateRubberBand(hit) {
+            const rubberBand = document.getElementById('rubber-band');
+            const rubberRect = rubberBand.getBoundingClientRect();
+            const targetCan = document.getElementById(`can-${gameState.targets[gameState.currentTarget]}`);
+            
+            if (!targetCan) return;
+            
+            const containerRect = document.getElementById('scene-container').getBoundingClientRect();
+            
+            // 創建飛行橡皮筋
+            const rubber = document.createElement('div');
+            rubber.className = 'flying-rubber';
+            rubber.style.left = `${rubberRect.left - containerRect.left + rubberRect.width/2}px`;
+            rubber.style.top = `${rubberRect.top - containerRect.top}px`;
+            rubber.style.width = rubberBand.style.width;
+            rubber.style.height = rubberBand.style.height;
+            document.getElementById('scene-container').appendChild(rubber);
+            
+            // 目標位置
+            const targetX = targetCan.getBoundingClientRect().left - containerRect.left + 20;
+            const targetY = targetCan.getBoundingClientRect().top - containerRect.top + 30;
+            
+            // 動畫參數
+            const startX = parseFloat(rubber.style.left);
+            const startY = parseFloat(rubber.style.top);
+            const distanceX = targetX - startX;
+            const distanceY = targetY - startY;
+            
+            // 抛射角度影响抛物线高度
+            const angleEffect = gameState.angle * 30; 
+            const parabolaHeight = 100 + angleEffect;
+            
+            // 動畫持續時間 (ms)
+            const duration = 800;
+            const startTime = Date.now();
+            
+            // 動畫函數
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                
+                // 拋物線運動
+                const x = startX + distanceX * progress;
+                const y = startY + distanceY * progress - parabolaHeight * Math.sin(progress * Math.PI);
+                
+                rubber.style.left = `${x}px`;
+                rubber.style.top = `${y}px`;
+                
+                // 擊中效果
+                if (hit && progress > 0.95) {
+                    const effect = document.createElement('div');
+                    effect.className = 'hit-effect';
+                    effect.style.left = `${targetX}px`;
+                    effect.style.top = `${targetY}px`;
+                    document.getElementById('scene-container').appendChild(effect);
+                    
+                    // 移除效果
+                    setTimeout(() => {
+                        effect.remove();
+                    }, 800);
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 動畫結束
+                    rubber.remove();
+                    completeShot(hit);
+                }
+            }
+            
+            animate();
+        }
+        
+        // 完成射擊
+        function completeShot(hit) {
+            if (hit) {
+                // 擊中目標
+                gameState.hitTargets[gameState.currentTarget] = true;
+                document.getElementById('state-info').textContent = `成功擊中 ${gameState.targets[gameState.currentTarget]}公尺目標！`;
+                
+                // 罐子倒下動畫
+                const can = document.getElementById(`can-${gameState.targets[gameState.currentTarget]}`);
+                can.style.transform += ' rotate(70deg)';
+                
+                // 檢查遊戲是否完成
+                const hitCount = gameState.hitTargets.filter(Boolean).length;
+                if (hitCount === 3) {
+                    gameState.gameCompleted = true;
+                    document.getElementById('state-info').textContent = "恭喜！你成功擊中所有目標！";
+                    document.getElementById('state-info').style.background = "linear-gradient(to right, rgba(46, 204, 113, 0.5), rgba(39, 174, 96, 0.5))";
+                    document.getElementById('state-info').style.color = "white";
+                } else {
+                    // 移動到下一個目標
+                    setTimeout(() => {
+                        for (let i = 0; i < gameState.targets.length; i++) {
+                            const nextTarget = (gameState.currentTarget + 1 + i) % gameState.targets.length;
+                            if (!gameState.hitTargets[nextTarget]) {
+                                gameState.currentTarget = nextTarget;
+                                break;
+                            }
+                        }
+                        
+                        document.getElementById('fire-btn').disabled = false;
+                        gameState.isFiring = false;
+                    }, 1000);
+                }
+            } else {
+                // 未擊中
+                document.getElementById('state-info').textContent = "未擊中目標，請調整參數";
+                document.getElementById('fire-btn').disabled = false;
+                gameState.isFiring = false;
+                
+                // 移動到下一個目標
+                setTimeout(() => {
+                    gameState.currentTarget = (gameState.currentTarget + 1) % gameState.targets.length;
+                }, 500);
+            }
+        }
+        
+        // 重置遊戲
+        function resetGame() {
+            // 重置遊戲狀態
+            gameState.selectedRubber = null;
+            gameState.tension = 1;
+            gameState.angle = 0;
+            gameState.currentTarget = 0;
+            gameState.hitTargets = [false, false, false];
+            gameState.isFiring = false;
+            gameState.gameCompleted = false;
+            
+            // 重置UI
+            document.querySelectorAll('.rubber-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            document.getElementById('tension-value').textContent = '正常 (+0)';
+            document.getElementById('angle-value').textContent = '0度 (+0)';
+            document.getElementById('state-info').textContent = '請選擇橡皮筋並調整參數';
+            document.getElementById('state-info').style.background = "linear-gradient(to right, rgba(255, 209, 102, 0.5), rgba(255, 140, 0, 0.5))";
+            document.getElementById('state-info').style.color = "#5a3700";
+            document.getElementById('fire-btn').disabled = false;
+            
+            // 重置竹筷槍角度
+            const gunBarrel = document.querySelector('.gun-barrel');
+            gunBarrel.style.transform = 'translateX(-50%) rotateX(0deg)';
+            
+            const rubberBand = document.getElementById('rubber-band');
+            rubberBand.style.transform = 'translateX(-50%) rotateX(0deg)';
+            
+            // 重置滑杆位置
+            updateSliders();
+            
+            // 重置橡皮筋
+            updateRubberBand();
+            
+            // 重置罐子
+            document.querySelectorAll('.can').forEach(can => {
+                can.style.transform = can.className.includes('can-10') ? 
+                    'scale(1.2) translateY(30px) rotateX(60deg)' : 
+                    can.className.includes('can-17') ? 
+                    'scale(1.0) translateY(60px) rotateX(60deg)' : 
+                    'scale(0.8) translateY(90px) rotateX(60deg)';
+            });
+        }
+        
+        // 初始化遊戲
+        window.onload = initGame;
+        
+        // 窗口大小变化时更新滑杆位置
+        window.addEventListener('resize', updateSliders);
+    </script>
+</body>
+</html>
